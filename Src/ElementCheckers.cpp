@@ -320,7 +320,7 @@ static void BuildStoryNameMap (GS::HashTable<short, GS::UniString>& outStoryMap)
 		if (GS::ucslen (row->uName) > 0) {
 			outStoryMap.Put (floorInd, GS::UniString (row->uName));
 		} else {
-			outStoryMap.Put (floorInd, GS::UniString::Printf (GS::UniString (u"%d. podlaží"), (int) floorInd));
+			outStoryMap.Put (floorInd, GS::ValueToUniString (static_cast<int> (floorInd)) + GS::UniString (u". podlaží"));
 		}
 	}
 	BMKillHandle ((GSHandle*) &storyInfo.data);
@@ -331,7 +331,7 @@ static GS::UniString LookupStoryName (short floorInd, const GS::HashTable<short,
 	if (storyMap.ContainsKey (floorInd)) {
 		return storyMap[floorInd];
 	}
-	return GS::UniString::Printf (GS::UniString (u"%d. podlaží"), (int) floorInd);
+	return GS::ValueToUniString (static_cast<int> (floorInd)) + GS::UniString (u". podlaží");
 }
 
 static GS::UniString LookupLayerName (
@@ -1147,20 +1147,33 @@ static bool LoadToolDefaultElement (
 			outElem.header.type = toolType;
 			return true;
 		}
+		if (withMemo) {
+			ACAPI_DisposeElemMemoHdls (&outMemo);
+		}
+		BNZeroMemory (&outElem, sizeof (API_Element));
+		BNZeroMemory (&outMemo, sizeof (API_ElementMemo));
+		outElem.header.type = toolType;
 	}
 	if (ACAPI_Element_GetDefaults (&outElem, memoPtr) == NoError) {
 		outElem.header.type = toolType;
 		return true;
 	}
+	if (withMemo) {
+		ACAPI_DisposeElemMemoHdls (&outMemo);
+	}
 	if (!IsMarkeredDefaultElemType (toolType.typeID)) {
+		BNZeroMemory (&outElem, sizeof (API_Element));
+		BNZeroMemory (&outMemo, sizeof (API_ElementMemo));
+		outElem.header.type = toolType;
 		if (ACAPI_Element_GetDefaultsExt (&outElem, memoPtr, 0UL, nullptr) == NoError) {
 			outElem.header.type = toolType;
 			return true;
 		}
+		if (withMemo) {
+			ACAPI_DisposeElemMemoHdls (&outMemo);
+		}
 	}
-	if (withMemo) {
-		ACAPI_DisposeElemMemoHdls (&outMemo);
-	}
+	BNZeroMemory (&outMemo, sizeof (API_ElementMemo));
 	return false;
 }
 
@@ -2325,7 +2338,7 @@ static void CheckCustomTextDimensions (SubCheckState& inOutState)
 						if (IsNoteMissingMeasuredValue ((*memo.dimElems)[i].note, customText)) {
 							const Int32 displayNum = (startIdx == 0) ? (i + 1) : i;
 							if (segmentCount > 1) {
-								pushDimRow (GS::UniString::Printf (GS::UniString (u"Úsek %d: "), (int) displayNum) + customText, i);
+								pushDimRow (GS::UniString (u"Úsek ") + GS::ValueToUniString (static_cast<int> (displayNum)) + GS::UniString (u": ") + customText, i);
 							} else {
 								pushDimRow (customText, i);
 							}
@@ -2452,9 +2465,8 @@ static void CheckStaticDimensions (SubCheckState& inOutState)
 					for (Int32 i = 0; i < nDim; ++i) {
 						const API_DimElem& dimElem = (*memo.dimElems)[i];
 						if (elem.dimension.defStaticDim || IsDimBaseStatic (dimElem.base)) {
-							const GS::UniString desc = GS::UniString::Printf (
-								GS::UniString (u"Hraničící čára č. %d"),
-								static_cast<int> (i + 1));
+							const GS::UniString desc = GS::UniString (u"Hraničící čára č. ") +
+								GS::ValueToUniString (static_cast<int> (i + 1));
 							pushStaticRow (desc, i, dimElem.pos);
 						}
 					}

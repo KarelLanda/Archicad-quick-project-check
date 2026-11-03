@@ -886,7 +886,7 @@ static void BuildStoryNameMap (GS::HashTable<short, GS::UniString>& outStoryMap)
 		if (GS::ucslen (row->uName) > 0) {
 			outStoryMap.Put (floorInd, GS::UniString (row->uName));
 		} else {
-			outStoryMap.Put (floorInd, GS::UniString::Printf (GS::UniString (u"%d. podlaží"), (int) floorInd));
+			outStoryMap.Put (floorInd, GS::ValueToUniString (static_cast<int> (floorInd)) + GS::UniString (u". podlaží"));
 		}
 	}
 	BMKillHandle ((GSHandle*) &storyInfo.data);
@@ -897,7 +897,7 @@ static GS::UniString LookupHomeStoryName (short floorInd, const GS::HashTable<sh
 	if (storyMap.ContainsKey (floorInd)) {
 		return storyMap[floorInd];
 	}
-	return GS::UniString::Printf (GS::UniString (u"(podlaží %d)"), (int) floorInd);
+	return GS::UniString (u"(podlaží ") + GS::ValueToUniString (static_cast<int> (floorInd)) + GS::UniString (u")");
 }
 
 static void GetLayerNameAndHidden (API_AttributeIndex layerInd, GS::UniString& outName, bool& outHidden)
@@ -1434,7 +1434,8 @@ static void CollectTypeResults (
 		if (selectedOnly && !selectedGuids.Contains (guid)) {
 			continue;
 		}
-		API_Element element = {};
+		API_Element element;
+		BNZeroMemory (&element, sizeof (API_Element));
 		element.header.guid = guid;
 		if (ACAPI_Element_Get (&element) != NoError) {
 			continue;
@@ -1509,14 +1510,15 @@ static void CollectTypeResults (
 
 					if (lenFail || angleFail) {
 						ScanResult res			= baseInfo;
+						const GS::UniString segStr = GS::UniString (u"Segment č. ") + GS::ValueToUniString (static_cast<int> (seg));
 						if (mode == CheckMode::Modular) {
-							res.checkedParam = GS::UniString::Printf (GS::UniString (u"Segment č. %d"), (int) seg);
+							res.checkedParam = segStr;
 						} else if (lenFail && angleFail) {
-							res.checkedParam = GS::UniString::Printf (GS::UniString (u"Segment č. %d (Délka + Úhel)"), (int) seg);
+							res.checkedParam = segStr + GS::UniString (u" (Délka + Úhel)");
 						} else if (lenFail) {
-							res.checkedParam = GS::UniString::Printf (GS::UniString (u"Segment č. %d (Délka)"), (int) seg);
+							res.checkedParam = segStr + GS::UniString (u" (Délka)");
 						} else {
-							res.checkedParam = GS::UniString::Printf (GS::UniString (u"Segment č. %d (Úhel)"), (int) seg);
+							res.checkedParam = segStr + GS::UniString (u" (Úhel)");
 						}
 						res.lengthMm			= segLenMm;
 						res.lengthDeviationMm	= devLen;
@@ -2383,9 +2385,9 @@ static void RecolorModelByCurrentTab (short dialogId, bool manualButtonTrigger)
 	if (manualButtonTrigger && dialogId != 0) {
 		const int totalHighlighted = static_cast<int> (
 			hGuids.GetSize () + dimPenTargets.GetSize () + staticCircleTargets.GetSize ());
-		SetStatusText (dialogId, GS::UniString::Printf (
-			GS::UniString (u"Přebarveno %d prvků modelu dle zvolené záložky."),
-			totalHighlighted));
+		SetStatusText (dialogId,
+			GS::UniString (u"Přebarveno ") + GS::ValueToUniString (totalHighlighted) +
+			GS::UniString (u" prvků modelu dle zvolené záložky."));
 	}
 }
 
@@ -2846,9 +2848,9 @@ static void RunSelectedScan (short dialogId)
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
 			ApplyCurrentVisualHighlights ();
-			GS::UniString st = GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané položky (Přesnost modelu): nalezeno %d odchylek."),
-				static_cast<int> (gPaletteState.results.GetSize ()));
+			GS::UniString st = GS::UniString (u"Kontrola vybrané položky (Přesnost modelu): nalezeno ") +
+				GS::ValueToUniString (static_cast<int> (gPaletteState.results.GetSize ())) +
+				GS::UniString (u" odchylek.");
 			SetStatusText (dialogId, st);
 		}
 		return;
@@ -2862,10 +2864,10 @@ static void RunSelectedScan (short dialogId)
 			RunAttributeSubCheck (static_cast<AttributeSubCheckId> (subIdx), gPaletteState.disabledClassSystems, sub);
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané položky (%T): nalezeno %d problémů."),
-				sub.baseName.ToUStr ().Get (),
-				static_cast<int> (sub.rows.GetSize ())));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané položky (") + sub.baseName +
+				GS::UniString (u"): nalezeno ") + GS::ValueToUniString (static_cast<int> (sub.rows.GetSize ())) +
+				GS::UniString (u" problémů."));
 		} else {
 			int totalIssues = 0;
 			for (UIndex i = 0; i < gPaletteState.attrSubChecks.GetSize (); ++i) {
@@ -2875,9 +2877,9 @@ static void RunSelectedScan (short dialogId)
 			}
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané kategorie (Atributy): nalezeno celkem %d problémů."),
-				totalIssues));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané kategorie (Atributy): nalezeno celkem ") +
+				GS::ValueToUniString (totalIssues) + GS::UniString (u" problémů."));
 		}
 		return;
 	}
@@ -2888,10 +2890,10 @@ static void RunSelectedScan (short dialogId)
 			RunPropertySubCheck (static_cast<PropertySubCheckId> (subIdx), sub);
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané položky (%T): nalezeno %d problémů."),
-				sub.baseName.ToUStr ().Get (),
-				static_cast<int> (sub.rows.GetSize ())));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané položky (") + sub.baseName +
+				GS::UniString (u"): nalezeno ") + GS::ValueToUniString (static_cast<int> (sub.rows.GetSize ())) +
+				GS::UniString (u" problémů."));
 		} else {
 			int totalIssues = 0;
 			for (UIndex i = 0; i < gPaletteState.propSubChecks.GetSize (); ++i) {
@@ -2901,9 +2903,9 @@ static void RunSelectedScan (short dialogId)
 			}
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané kategorie (Vlastnosti): nalezeno celkem %d problémů."),
-				totalIssues));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané kategorie (Vlastnosti): nalezeno celkem ") +
+				GS::ValueToUniString (totalIssues) + GS::UniString (u" problémů."));
 		}
 		return;
 	}
@@ -2915,10 +2917,10 @@ static void RunSelectedScan (short dialogId)
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
 			ApplyCurrentVisualHighlights ();
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané položky (%T): nalezeno %d problémů."),
-				sub.baseName.ToUStr ().Get (),
-				static_cast<int> (sub.rows.GetSize ())));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané položky (") + sub.baseName +
+				GS::UniString (u"): nalezeno ") + GS::ValueToUniString (static_cast<int> (sub.rows.GetSize ())) +
+				GS::UniString (u" problémů."));
 		} else {
 			int totalIssues = 0;
 			for (UIndex i = 0; i < gPaletteState.elemSubChecks.GetSize (); ++i) {
@@ -2929,9 +2931,9 @@ static void RunSelectedScan (short dialogId)
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
 			ApplyCurrentVisualHighlights ();
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané kategorie (Prvky modelu): nalezeno celkem %d problémů."),
-				totalIssues));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané kategorie (Prvky modelu): nalezeno celkem ") +
+				GS::ValueToUniString (totalIssues) + GS::UniString (u" problémů."));
 		}
 		return;
 	}
@@ -2942,10 +2944,10 @@ static void RunSelectedScan (short dialogId)
 			RunDefaultSubCheck (static_cast<ElementSubCheckId> (subIdx), gPaletteState.disabledClassSystems, sub);
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané položky (%T): nalezeno %d problémů."),
-				sub.baseName.ToUStr ().Get (),
-				static_cast<int> (sub.rows.GetSize ())));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané položky (") + sub.baseName +
+				GS::UniString (u"): nalezeno ") + GS::ValueToUniString (static_cast<int> (sub.rows.GetSize ())) +
+				GS::UniString (u" problémů."));
 		} else {
 			int totalIssues = 0;
 			for (UIndex i = 0; i < gPaletteState.defSubChecks.GetSize (); ++i) {
@@ -2955,9 +2957,9 @@ static void RunSelectedScan (short dialogId)
 			}
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané kategorie (Výchozí nastavení nástrojů): nalezeno celkem %d problémů."),
-				totalIssues));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané kategorie (Výchozí nastavení nástrojů): nalezeno celkem ") +
+				GS::ValueToUniString (totalIssues) + GS::UniString (u" problémů."));
 		}
 		return;
 	}
@@ -2968,10 +2970,10 @@ static void RunSelectedScan (short dialogId)
 			RunFavoriteSubCheck (static_cast<ElementSubCheckId> (subIdx), gPaletteState.disabledClassSystems, sub);
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané položky (%T): nalezeno %d problémů."),
-				sub.baseName.ToUStr ().Get (),
-				static_cast<int> (sub.rows.GetSize ())));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané položky (") + sub.baseName +
+				GS::UniString (u"): nalezeno ") + GS::ValueToUniString (static_cast<int> (sub.rows.GetSize ())) +
+				GS::UniString (u" problémů."));
 		} else {
 			int totalIssues = 0;
 			for (UIndex i = 0; i < gPaletteState.favSubChecks.GetSize (); ++i) {
@@ -2981,9 +2983,9 @@ static void RunSelectedScan (short dialogId)
 			}
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané kategorie (Oblíbená nastavení): nalezeno celkem %d problémů."),
-				totalIssues));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané kategorie (Oblíbená nastavení): nalezeno celkem ") +
+				GS::ValueToUniString (totalIssues) + GS::UniString (u" problémů."));
 		}
 		return;
 	}
@@ -2994,10 +2996,10 @@ static void RunSelectedScan (short dialogId)
 			RunViewSubCheck (static_cast<ViewSubCheckId> (subIdx), sub);
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané položky (%T): nalezeno %d problémů."),
-				sub.baseName.ToUStr ().Get (),
-				static_cast<int> (sub.rows.GetSize ())));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané položky (") + sub.baseName +
+				GS::UniString (u"): nalezeno ") + GS::ValueToUniString (static_cast<int> (sub.rows.GetSize ())) +
+				GS::UniString (u" problémů."));
 		} else {
 			int totalIssues = 0;
 			for (UIndex i = 0; i < gPaletteState.viewSubChecks.GetSize (); ++i) {
@@ -3007,9 +3009,9 @@ static void RunSelectedScan (short dialogId)
 			}
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané kategorie (Zobrazení): nalezeno celkem %d problémů."),
-				totalIssues));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané kategorie (Zobrazení): nalezeno celkem ") +
+				GS::ValueToUniString (totalIssues) + GS::UniString (u" problémů."));
 		}
 		return;
 	}
@@ -3021,10 +3023,10 @@ static void RunSelectedScan (short dialogId)
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
 			ApplyCurrentVisualHighlights ();
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané položky (%T): nalezeno %d problémů."),
-				sub.baseName.ToUStr ().Get (),
-				static_cast<int> (sub.rows.GetSize ())));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané položky (") + sub.baseName +
+				GS::UniString (u"): nalezeno ") + GS::ValueToUniString (static_cast<int> (sub.rows.GetSize ())) +
+				GS::UniString (u" problémů."));
 		} else {
 			int totalIssues = 0;
 			for (UIndex i = 0; i < gPaletteState.docSubChecks.GetSize (); ++i) {
@@ -3035,9 +3037,9 @@ static void RunSelectedScan (short dialogId)
 			UpdateTreeNodesDisplay (dialogId);
 			RefreshResultList (dialogId);
 			ApplyCurrentVisualHighlights ();
-			SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Kontrola vybrané kategorie (Dokumentace): nalezeno celkem %d problémů."),
-				totalIssues));
+			SetStatusText (dialogId,
+				GS::UniString (u"Kontrola vybrané kategorie (Dokumentace): nalezeno celkem ") +
+				GS::ValueToUniString (totalIssues) + GS::UniString (u" problémů."));
 		}
 		return;
 	}
@@ -3141,10 +3143,11 @@ static void OpenDefaultToolSettingsForListRow (short dialogId, UIndex listIndex)
 		}
 		UpdateTreeNodesDisplay (dialogId);
 		RefreshResultList (dialogId);
-		SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Výchozí nastavení nástroje '%T' bylo upraveno (zbývá %d problémů v této kontrole)."),
-				toolName.ToUStr ().Get (),
-			static_cast<int> (gPaletteState.defSubChecks[subIdx].rows.GetSize ())));
+		SetStatusText (dialogId,
+			GS::UniString (u"Výchozí nastavení nástroje '") + toolName +
+			GS::UniString (u"' bylo upraveno (zbývá ") +
+			GS::ValueToUniString (static_cast<int> (gPaletteState.defSubChecks[subIdx].rows.GetSize ())) +
+			GS::UniString (u" problémů v této kontrole)."));
 	}
 }
 
@@ -3170,6 +3173,7 @@ static void OpenFavoriteSettingsForListRow (short dialogId, UIndex listIndex)
 	}
 
 	API_Favorite favData (favName);
+	BNZeroMemory (&favData.element, sizeof (API_Element));
 	favData.memo.New ();
 	BNZeroMemory (&favData.memo.Get (), sizeof (API_ElementMemo));
 	favData.classifications.New ();
@@ -3286,7 +3290,8 @@ static void OpenFavoriteSettingsForListRow (short dialogId, UIndex listIndex)
 			if (ACAPI_Category_GetElementCategories (&categoryList) == NoError) {
 				GS::Array<API_ElemCategoryValue> updatedCategories;
 				for (const API_ElemCategory& cat : categoryList) {
-					API_ElemCategoryValue catVal = {};
+					API_ElemCategoryValue catVal;
+					BNZeroMemory (&catVal, sizeof (API_ElemCategoryValue));
 					if (ACAPI_Category_GetCategoryValueDefault (rawType, cat, &catVal) == NoError) {
 						updatedCategories.Push (catVal);
 					}
@@ -3346,10 +3351,11 @@ static void OpenFavoriteSettingsForListRow (short dialogId, UIndex listIndex)
 		}
 		UpdateTreeNodesDisplay (dialogId);
 		RefreshResultList (dialogId);
-		SetStatusText (dialogId, GS::UniString::Printf (
-				GS::UniString (u"Oblíbené nastavení '%T' bylo upraveno (zbývá %d problémů v této kontrole)."),
-				favName.ToUStr ().Get (),
-			static_cast<int> (gPaletteState.favSubChecks[subIdx].rows.GetSize ())));
+		SetStatusText (dialogId,
+			GS::UniString (u"Oblíbené nastavení '") + favName +
+			GS::UniString (u"' bylo upraveno (zbývá ") +
+			GS::ValueToUniString (static_cast<int> (gPaletteState.favSubChecks[subIdx].rows.GetSize ())) +
+			GS::UniString (u" problémů v této kontrole)."));
 	}
 
 	disposeFavDataMemos ();
