@@ -1,0 +1,38 @@
+#include "ToolIconsResIDs.hpp"
+
+'GICN' 32500 "Kontrola modelu" {
+	"KontrolaModelu"
+}
+
+'GICN' Cegra_Icon_Wall "ACWallToolLarge" {
+	"ACWallToolLarge"
+}
+'GICN' Cegra_Icon_Beam "ACBeamToolLarge" {
+	"ACBeamToolLarge"
+}
+'GICN' Cegra_Icon_Column "ACColumnToolLarge" {
+	"ACColumnToolLarge"
+}
+'GICN' Cegra_Icon_Line "ACLineToolLarge" {
+	"ACLineToolLarge"
+}
+'GICN' Cegra_Icon_Poly "ACPolylineToolLarge" {
+	"ACPolylineToolLarge"
+}
+
+'GICN' Cegra_Icon_LayerShow "CegraLayerShow" {
+	"layshow"
+}
+'GICN' Cegra_Icon_LayerHide "CegraLayerHide" {
+	"layhid"
+}
+
+'GICN' Cegra_Icon_PaletteCheck "ActionCheckAll" {
+	"ActionCheckAll"
+}
+'GICN' Cegra_Icon_PaletteCheckSel "ActionCheckSelected" {
+	"ActionCheckSelected"
+}
+'GICN' Cegra_Icon_PaletteClear "ActionClearResults" {
+	"ActionClearResults"
+}

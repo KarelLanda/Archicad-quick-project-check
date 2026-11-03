@@ -1,0 +1,116 @@
+name: Build & Release Add-On
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows (${{ matrix.ac_version }})
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ac_version: 'AC29'
+            devkit_tag: 'DevKit-AC29'
+            devkit_pattern: 'API.Development.Kit.WIN.29.3100.zip'
+            artifact_suffix: 'AC29'
+          - ac_version: 'AC30'
+            devkit_tag: 'DevKit-AC30'
+            devkit_pattern: 'API.Development.Kit.WIN.30.3000.zip'
+            artifact_suffix: 'AC30'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download & Extract Archicad DevKit
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.DEVKIT_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP\DevKit"
+          Write-Host "Downloading DevKit (${{ matrix.ac_version }}) tag ${{ matrix.devkit_tag }} from KarelLanda/Archicad-Devkits..."
+          gh release download "${{ matrix.devkit_tag }}" --repo KarelLanda/Archicad-Devkits --pattern "${{ matrix.devkit_pattern }}" --dir "$env:RUNNER_TEMP"
+          $zipFile = Get-ChildItem -Path "$env:RUNNER_TEMP" -Filter "*.zip" | Select-Object -First 1
+          if (-not $zipFile) {
+              Write-Error "DevKit zip not found matching pattern ${{ matrix.devkit_pattern }}"
+              exit 1
+          }
+          Write-Host "Extracting DevKit from: $($zipFile.FullName)..."
+          Expand-Archive -Path $zipFile.FullName -DestinationPath "$env:RUNNER_TEMP\DevKit" -Force
+
+      - name: Configure CMake
+        shell: pwsh
+        run: |
+          $acapFile = Get-ChildItem -Path "$env:RUNNER_TEMP\DevKit" -Recurse -Filter "ACAPinc.h" | Select-Object -First 1
+          if ($acapFile) {
+              $devkitDir = $acapFile.Directory.Parent.Parent.FullName
+          } else {
+              $devkitDir = "$env:RUNNER_TEMP\DevKit"
+          }
+          $devkitDir = $devkitDir.Replace('\', '/')
+          Write-Host "Successfully located DevKit at: $devkitDir"
+          cmake -B build -G "Visual Studio 17 2022" -A x64 -T v143 -DAC_API_DEVKIT_DIR="$devkitDir"
+
+      - name: Build Add-On (Release)
+        run: cmake --build build --config Release
+
+      - name: Prepare Artifact
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "dist"
+          Get-ChildItem -Path "build\Release\*.apx" | ForEach-Object {
+              $destName = "$($_.BaseName)-${{ matrix.artifact_suffix }}$($_.Extension)"
+              Copy-Item $_.FullName -Destination "dist\$destName"
+              Write-Host "Created artifact: dist\$destName"
+          }
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: KontrolaModelu-Windows-${{ matrix.ac_version }}
+          path: dist/*.apx
+
+  publish-release:
+    name: Publish GitHub Release
+    needs: build-windows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all built artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'KontrolaModelu-Windows-*'
+          path: dist
+          merge-multiple: true
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'v1.0.0' }}
+          name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'Release v1.0.0' }}
+          files: dist/*.apx
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'rc') }}

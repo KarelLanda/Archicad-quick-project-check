@@ -1,0 +1,20 @@
+# Build directories
+Build/
+build/
+Build*/
+build*/
+bin/
+out/
+.vs/
+DerivedData/
+dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# User specific CMake/IDE files
+CMakeSettings.json
+*.user
+*.suo
+*.VC.db

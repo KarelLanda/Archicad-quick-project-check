@@ -1,0 +1,171 @@
+#include "MDIDs_APICD.h"
+#include "ToolIconsResIDs.hpp"
+
+'MDID' 32500 "Add-On Identifier" {
+	944205126
+	2244564690
+}
+
+'STR#' 32000 "Add-on Name and Description" {
+/* [  1] */		"Kontrola modelu"
+/* [  2] */		"Kontrola modelu: kontrola přesnosti modelu, atributů, vlastností, prvků, zobrazení a dokumentace."
+}
+
+'STR#' 32500 "KontrolaModelu Menu" {
+/* [   ] */		"Hotline Cegra"
+/* [  1] */		"Kontrola modelu...^ES^EE^EI^ED^EW^EL^E3^32500"
+}
+
+'STR#' 32501 "KontrolaModelu Menu Prompt" {
+/* [   ] */		"Hotline Cegra"
+/* [  1] */		"Otevře paletku pro kontrolu modelu^ES^EE^EI^ED^EW^EL^E3"
+}
+
+/* Položky musí být v souboru v pořadí 1..N — ID = pořadí řádků. */
+'GDLG' 32420 Palette | grow | close      0    0 1100  640 "Kontrola modelu" {
+/*  1 */ LeftText			  346    40  400   16	SmallPlain  vCenter  "Zkontrolovat nástroje"
+/*  2 */ IconPushCheck		  346    60   36   28	Cegra_Icon_Wall
+/*  3 */ IconPushCheck		  388    60   36   28	Cegra_Icon_Beam
+/*  4 */ IconPushCheck		  430    60   36   28	Cegra_Icon_Column
+/*  5 */ IconPushCheck		  472    60   36   28	Cegra_Icon_Line
+/*  6 */ IconPushCheck		  514    60   36   28	Cegra_Icon_Poly
+/*  7 */ CheckBox			  564    65  220   18	SmallPlain  "Pouze označené prvky"
+/*  8 */ Button				  220     8  104   26	SmallPlain  "Nastavení..."
+/*  9 */ RadioButton		  346    96  180   20	SmallPlain  1  "Aktuální zobrazení"
+/* 10 */ RadioButton		  534    96  160   20	SmallPlain  1  "Celý model"
+/* 11 */ RadioButton		  346   122  180   20	SmallPlain  2  "Chlupatá čísla"
+/* 12 */ RadioButton		  534   122  160   20	SmallPlain  2  "Modularita"
+/* 13 */ LeftText			  346   152  120   16	SmallPlain  vCenter  "Modul [mm]"
+/* 14 */ TextEdit			  346   172  452   24	SmallPlain  64
+/* 15 */ LeftText			  346   152  360   16	SmallPlain  vCenter  "Tolerance délky a výšky [mm]"
+/* 16 */ TextEdit			  346   172  452   24	SmallPlain  64
+/* 17 */ LeftText			  346   202  360   16	SmallPlain  vCenter  "Tolerance úhlu [°]"
+/* 18 */ TextEdit			  346   220  452   24	SmallPlain  64
+/* 19 */ SingleSelList		  346   256  742  332	LargePlain  PartialItems  16  HasHeader  16
+/* 20 */ LeftText			  346   600  742   22	SmallPlain  vCenter  StaticEdge  ""
+/* 21 */ IconButton			   80   566   28   28	Cegra_Icon_PaletteClear
+/* 22 */ IconButton			   12   566   28   28	Cegra_Icon_PaletteCheck
+/* 23 */ Button				  806   172   84   24	SmallPlain  "Nápověda"
+/* 24 */ Button				  806   220   84   24	SmallPlain  "Nápověda"
+/* 25 */ Button				   12     8   96   26	SmallPlain  "Vybrat vše"
+/* 26 */ Button				  114     8  100   26	SmallPlain  "Zrušit výběr"
+/* 27 */ SingleSelTreeView	   12    40  312  518	SmallPlain  0  0  16  16  noLabelEdit  noDragDrop  255
+/* 28 */ Separator			  334     8    2  620
+/* 29 */ LeftText			  346    12  742   20	SmallBold   vCenter  ""
+/* 30 */ LeftText			  346    40  742   18	SmallPlain  vCenter  ""
+/* 31 */ IconButton			   46   566   28   28	Cegra_Icon_PaletteCheckSel
+/* 32 */ Button				  116   567  208   26	SmallPlain  "Přebarvit dle záložky"
+/* 33 */ CheckBox			   12   601  312   20	SmallPlain  "Živá synchronizace"
+}
+
+'GDLG' 32422 Modal 0 0  460  502 "Nastavení kontroly" {
+/*  1 */ Button		 350  464   98  24  LargePlain  "OK"
+/*  2 */ Button		 242  464   98  24  LargePlain  "Zrušit"
+/*  3 */ Button		  12  464  130  24  SmallPlain  "Obnovit výchozí"
+/*  4 */ CheckBox		  12   14  436  20  SmallPlain  "Zapnout barevné zvýraznění ve 2D/3D po kontrole"
+/*  5 */ Separator		  12   42  436   2
+/*  6 */ LeftText		  12   52  280  18  SmallBold   vCenter  "Nalezené (problematické) prvky"
+/*  7 */ LeftText		  12   78  110  22  SmallPlain  vCenter  "Barva zvýraznění:"
+/*  8 */ UserItem		 126   77   44  24  StaticEdge
+/*  9 */ Button		 178   77  110  24  SmallPlain  "Změnit barvu..."
+/* 10 */ LeftText		 304   78   80  22  SmallPlain  vCenter  "Průhlednost:"
+/* 11 */ RealEdit		 386   78   46  22  SmallPlain  "0.0" "100.0"
+/* 12 */ LeftText		 436   78   16  22  SmallPlain  vCenter  "%"
+/* 13 */ LeftText		  12  114  280  18  SmallBold   vCenter  "Ostatní prvky v pohledu"
+/* 14 */ LeftText		  12  140  110  22  SmallPlain  vCenter  "Barva ostatních:"
+/* 15 */ UserItem		 126  139   44  24  StaticEdge
+/* 16 */ Button		 178  139  110  24  SmallPlain  "Změnit barvu..."
+/* 17 */ LeftText		 304  140   80  22  SmallPlain  vCenter  "Průhlednost:"
+/* 18 */ RealEdit		 386  140   46  22  SmallPlain  "0.0" "100.0"
+/* 19 */ LeftText		 436  140   16  22  SmallPlain  vCenter  "%"
+/* 20 */ Separator		  12  238  436   2
+/* 21 */ LeftText		  12  252  360  22  SmallPlain  vCenter  "Počet desetinných míst v tabulce výsledků (0–10):"
+/* 22 */ IntEdit		 386  252   62  22  SmallPlain  "0" "10"
+/* 23 */ Separator		  12  284  436   2
+/* 24 */ LeftText		  12  294  436  18  SmallBold   vCenter  "Kontrolované klasifikační systémy:"
+/* 25 */ SingleSelList	  12  316  436  132 SmallPlain  PartialItems  18
+/* 26 */ LeftText		  12  174  326  22  SmallPlain  vCenter  "Zvýrazňovací pero kót (1–255):"
+/* 27 */ PosIntEdit		 344  174   46  22  SmallPlain  "1" "255"
+/* 28 */ UserControl	 396  174   52  22  257  0x0001  0x1100  0
+/* 29 */ LeftText		  12  204  360  22  SmallPlain  vCenter  "Průměr kružnice statických částí kót [mm]:"
+/* 30 */ RealEdit		 386  204   62  22  SmallPlain  "1.0" "50000.0"
+}
+
+'GDLG' 32423 Modal 0 0  540  400 "Tolerance — nápověda" {
+/*  1 */ Button		 400  360  120  28  LargePlain  "Zavřít"
+/*  2 */ LeftText		  12   12  516  336  SmallPlain  ""
+}
+
+'DLGH' 32420 DLG_32420_KontrolaModelu {
+1	""							LeftText_0
+2	"Zeď"						IconPushCheck_0
+3	"Trám"						IconPushCheck_1
+4	"Sloup"						IconPushCheck_2
+5	"Čára"						IconPushCheck_3
+6	"Lomená čára"				IconPushCheck_4
+7	""							CheckBox_0
+8	"Nastavení kontroly"		Button_0
+9	""							RadioButton_0
+10	""							RadioButton_1
+11	""							RadioButton_2
+12	""							RadioButton_3
+13	""							LeftText_1
+14	""							TextEdit_0
+15	""							LeftText_2
+16	""							TextEdit_1
+17	""							LeftText_3
+18	""							TextEdit_2
+19	""							SingleSelListBox_0
+20	""							LeftText_4
+21	"Vymazat"					IconButton_0
+22	"Zkontrolovat"				IconButton_1
+23	""							Button_1
+24	""							Button_2
+25	""							Button_3
+26	""							Button_4
+27	""							SingleSelTreeView_0
+28	""							Separator_0
+29	""							LeftText_5
+30	""							LeftText_6
+31	"Zkontrolovat pouze označené"	IconButton_2
+32	"Přebarvit prvky modelu dle aktuálně zvolené záložky"	Button_5
+33	""							CheckBox_1
+}
+
+'DLGH' 32423 DLG_32423_ToleranceHelp {
+1	""							Button_0
+2	""							LeftText_0
+}
+
+'DLGH' 32422 DLG_32422_CegraNastaveni {
+1	""							Button_0
+2	""							Button_1
+3	""							Button_2
+4	""							CheckBox_0
+5	""							Separator_0
+6	""							LeftText_0
+7	""							LeftText_1
+8	""							UserItem_0
+9	""							Button_3
+10	""							LeftText_2
+11	""							RealEdit_0
+12	""							LeftText_3
+13	""							LeftText_4
+14	""							LeftText_5
+15	""							UserItem_1
+16	""							Button_4
+17	""							LeftText_6
+18	""							RealEdit_1
+19	""							LeftText_7
+20	""							Separator_1
+21	""							LeftText_8
+22	""							IntEdit_0
+23	""							Separator_2
+24	""							LeftText_9
+25	""							SingleSelListBox_0
+26	""							LeftText_10
+27	""							PosIntEdit_0
+28	""							UC257_0
+29	""							LeftText_11
+30	""							RealEdit_2
+}

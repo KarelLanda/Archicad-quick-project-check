@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">
+    <g id="ActionClearResults_18x18">
+        <rect fill="none" height="18" width="18" x="0" y="0"/>
+        <g transform="matrix(0.707107,0.707107,0.707107,-0.707107,9,2.221825)">
+            <path d="M-2.278,-5.5L13.278,-5.5" fill="none" fill-rule="nonzero" stroke="#FF4114" stroke-width="2"/>
+        </g>
+        <g transform="matrix(0.707107,-0.707107,-0.707107,-0.707107,9,15.778175)">
+            <path d="M-2.278,5.5L13.278,5.5" fill="none" fill-rule="nonzero" stroke="#FF4114" stroke-width="2"/>
+        </g>
+    </g>
+</svg>
