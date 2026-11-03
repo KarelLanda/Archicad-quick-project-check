@@ -2,7 +2,7 @@
 
 Veškeré významné změny v tomto doplňku jsou dokumentovány v tomto souboru.
 
-## [v1.0.0] - 2026-11-03
+## [BETA 1.0.0] - 2026-11-03
 
 ### Přidané funkce
 - **Přesnost modelu:** Kontrola chlupatých čísel (délky, výšky a úhly lineárních prvků) a kontrola modularity s možností nastavení tolerance a přebarvení v modelu.
